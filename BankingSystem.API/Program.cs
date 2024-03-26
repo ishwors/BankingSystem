@@ -32,15 +32,9 @@ builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo
     {
-        Title = "Your API",
+        Title = "BankingSystem - API",
         Version = "v1",
-        Description = "A brief description of your API",
-        Contact = new OpenApiContact
-        {
-            Name = "Your Name",
-            Email = "your.email@example.com",
-            Url = new Uri("https://example.com"),
-        }
+        Description = "These APIs will be used to manage users, accounts, transactions, KYC, and other details of the Banking System."
     });
 
     // Set the comments path for the Swagger JSON and UI.
