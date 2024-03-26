@@ -22,5 +22,19 @@ namespace BankingSystem.API.Utilities.EmailTemplates
                 "ATM PIN: " + atmCardPin + "<br><br>" +
                 "Thank you for choosing our banking services. If you have any questions or need assistance, feel free to contact our support team.";
         }
+
+        public static string EmailBodyForTransactionDeposit(string fullname, decimal depositAmount, string remarks, DateTime date)
+        {
+            return $"Dear {fullname},<br><br>Your bank account has been credited by <b>{depositAmount}</b> on {date}.<br><br>" +
+            $"Remarks: {remarks}. <br><br>"+
+            "~Small Bank";
+        }
+
+        public static string EmailBodyForTransactionWithdraw(string fullname, decimal withdrawAmount, string remarks, DateTime date)
+        {
+            return $"Dear {fullname},<br><br>Your bank account has been debited by <b>{withdrawAmount}</b> on {date}.<br><br>" +
+           $"Remarks: {remarks}. <br><br>" +
+           "~Small Bank";
+        }
     }
 }

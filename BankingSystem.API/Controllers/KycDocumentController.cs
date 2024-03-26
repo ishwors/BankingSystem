@@ -39,22 +39,6 @@ namespace BankingSystem.API.Controllers
         }
 
         /// <summary>
-        /// Retrieves a KYC Document by its Id.
-        /// </summary>
-        /// <param name="KycId">The Id of the KYC Document.</param>
-        /// <returns>The KYC Document if found, otherwise NotFound.</returns>
-        [HttpGet("by{KycId}")]
-        public async Task<ActionResult<KycDocument>> GetKycDocument(Guid KycId)
-        {
-            var kycDocument = await _kycService.GetKycDocumentAsync(KycId);
-            if (kycDocument == null)
-            {
-                return NotFound();
-            }
-            return Ok(kycDocument);
-        }
-
-        /// <summary>
         /// Retrieves a KYC Document by a User Id.
         /// </summary>
         /// <param name="UserId">The Id of the User.</param>

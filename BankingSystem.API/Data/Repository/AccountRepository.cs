@@ -22,7 +22,7 @@ namespace BankingSystem.API.Data.Repository
             return await _context.Account.OrderBy(a => a.AccountNumber).ToListAsync();
         }
 
-        async Task<Accounts?> GetAccountByAccountNumberAsync(long accountNumber)
+        public async Task<Accounts?> GetAccountByAccountNumberAsync(long accountNumber)
         {
             return await _context.Account.Where(a => a.AccountNumber == accountNumber).FirstOrDefaultAsync();
         }
@@ -60,11 +60,6 @@ namespace BankingSystem.API.Data.Repository
                 return existingAccount;
             }
             return null;
-        }
-
-        Task<Accounts?> IAccountRepository.GetAccountByAccountNumberAsync(long accountNumber)
-        {
-            throw new NotImplementedException();
         }
 
         public Task<Accounts> AddAccounts(Users users)

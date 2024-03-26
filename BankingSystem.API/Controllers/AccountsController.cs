@@ -72,7 +72,7 @@ namespace BankingSystem.API.Controllers
         /// <returns>A NoContent response.</returns>
         [HttpDelete("{accountId}")]
         [CustomAuthorize("TellerPerson")]
-        public ActionResult DeleteUser(Guid accountId)
+        public ActionResult DeleteAccount(Guid accountId)
         {
             accountServices.DeleteAccount(accountId);
             return NoContent();

@@ -77,9 +77,9 @@ namespace BankingSystem.API.Data.Repository
             return null;
         }
 
-        public async Task<Users> UpdateUsersAsync(Guid Id, Users finalUser)
+        public async Task<Users> UpdateUsersAsync(Users finalUser)
         {
-            var existingUser = await GetUserAsync(Id);
+            var existingUser = await GetUserAsync(finalUser.Id);
             if (existingUser != null)
             {
                 // Check and update only the fields that are sent from the UI
@@ -98,9 +98,6 @@ namespace BankingSystem.API.Data.Repository
                 if (finalUser.DateOfBirth != new DateTime() && existingUser.DateOfBirth != finalUser.DateOfBirth)
                     existingUser.DateOfBirth = finalUser.DateOfBirth;
 
-                if (!string.IsNullOrEmpty(finalUser.PasswordHash) && existingUser.PasswordHash != finalUser.PasswordHash)
-                    existingUser.PasswordHash = finalUser.PasswordHash;
-
                 if (!string.IsNullOrEmpty(finalUser.Address) && existingUser.Address != finalUser.Address)
                     existingUser.Address = finalUser.Address;
 
@@ -113,9 +110,9 @@ namespace BankingSystem.API.Data.Repository
             return null;
         }
 
-        public async Task<Users> UpdatePasswordAsync(Guid Id, Users finalUser)
+        public async Task<Users> UpdatePasswordAsync(Users finalUser)
         {
-            var existingUser = await GetUserAsync(Id);
+            var existingUser = await GetUserAsync(finalUser.Id);
             if (existingUser != null)
             {
                 if (!string.IsNullOrEmpty(finalUser.PasswordHash) && existingUser.PasswordHash != finalUser.PasswordHash)

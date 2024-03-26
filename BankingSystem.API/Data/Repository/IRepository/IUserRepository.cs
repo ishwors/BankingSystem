@@ -10,8 +10,8 @@ namespace BankingSystem.API.Data.Repository.IRepository
         Task<Users?> GetUserAsync(Guid Id);
         Task<Users?> GetUserByEmailAsync(string email);
         Task<Users> AddUsers(Users users);
-        Task<Users> UpdateUsersAsync(Guid Id, Users users);
-        Task<Users> UpdatePasswordAsync(Guid Id, Users users);
+        Task<Users> UpdateUsersAsync(Users users);
+        Task<Users> UpdatePasswordAsync(Users users);
         void DeleteUser(Guid Id);
         Task<Users> PatchUserDetails(Guid Id, JsonPatchDocument<UserCreationDTO> userDetails);
     }

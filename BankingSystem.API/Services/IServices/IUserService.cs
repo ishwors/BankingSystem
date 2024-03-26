@@ -13,7 +13,7 @@ namespace BankingSystem.API.Services.IServices
         void DeleteUser(Guid Id);
         Task<UserInfoDisplayDTO> PatchUserDetails(Guid Id, JsonPatchDocument<UserCreationDTO> patchDocument);
         Task<UserInfoDisplayDTO> UpdateUsersAsync(Guid Id, UserUpdateDTO users);
-        Task<UserInfoDisplayDTO> ResetUserPasswordAsync(Guid Id, string password); 
+        Task<UserInfoDisplayDTO> ResetUserPasswordAsync(string username, string password); 
         Task<UserInfoDisplayDTO> ChangePasswordAsync(Guid Id, string oldPassword, string newPassword);
         Task<UserInfoDisplayDTO> Login(string username, string password);
     }

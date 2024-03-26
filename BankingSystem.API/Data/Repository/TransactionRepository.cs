@@ -94,16 +94,13 @@ namespace BankingSystem.API.Data.Repository
 
             var isVerified = await IsVerifiedKycAsync(kycAccount.KYCId);
 
-            var totalBalance = await _context.Account
-                .FirstOrDefaultAsync(b => b.Balance == account.Balance);
-
             if (isVerified is true && isTeller)
             {
                 // Set the accountId for the transaction
                 transaction.AccountId = account.AccountId;
 
                 _context.Transactions.Add(transaction);
-                totalBalance.Balance += (long)transaction.Amount;
+                account.Balance += transaction.Amount;
                 await _context.SaveChangesAsync();
                 return transaction;
             }
@@ -141,9 +138,6 @@ namespace BankingSystem.API.Data.Repository
 
             var isVerified = await IsVerifiedKycAsync(kycAccount.KYCId);
 
-            var totalBalance = await _context.Account
-                .FirstOrDefaultAsync(b => b.Balance == account.Balance);
-
             var withdrawAmount = transaction.Amount;
 
             if (account.Balance < transaction.Amount)
@@ -156,7 +150,7 @@ namespace BankingSystem.API.Data.Repository
                 transaction.AccountId = account.AccountId;
 
                 _context.Transactions.Add(transaction);
-                totalBalance.Balance -= (long)transaction.Amount;
+                account.Balance -= transaction.Amount;
                 await _context.SaveChangesAsync();
                 return transaction;
             }
