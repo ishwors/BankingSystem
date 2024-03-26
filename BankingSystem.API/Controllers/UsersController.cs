@@ -18,6 +18,10 @@ namespace BankingSystem.API.Controllers
             userService = UserService ?? throw new ArgumentNullException(nameof(userService));
         }
 
+        /// <summary>
+        /// Gets all users.
+        /// </summary>
+        /// <returns>A list of <see cref="Users"/>.</returns>
         [HttpGet]
         [CustomAuthorize("TellerPerson")]
         public async Task<ActionResult<IEnumerable<Users>>> GetUsers()
@@ -31,6 +35,11 @@ namespace BankingSystem.API.Controllers
             return Ok(users);
         }
 
+        /// <summary>
+        /// Gets a user by Id.
+        /// </summary>
+        /// <param name="id">The Id of the user.</param>
+        /// <returns>The user with the given Id.</returns>
         [HttpGet("{id}")]
         public async Task<ActionResult<Users>> GetUser(Guid id)
         {
@@ -42,6 +51,12 @@ namespace BankingSystem.API.Controllers
             return Ok(user);
         }
 
+        /// <summary>
+        /// Logs in a user using the given credentials.
+        /// </summary>
+        /// <param name="username">The user's username.</param>
+        /// <param name="password">The user's password.</param>
+        /// <returns>The logged in user.</returns>
         [HttpPost("login")]
         public async Task<ActionResult<UserInfoDisplayDTO>> Login(string username, string password)
         {
@@ -54,6 +69,14 @@ namespace BankingSystem.API.Controllers
             return Ok(user);
         }
 
+
+        /// <summary>
+        /// Creates a new user using the given UserCreationDTO.
+        /// </summary>
+        /// <param name="user">The new user to create.</param>
+        /// <returns>The created user.</returns>
+        /// <response code="200">The created user.</response>
+        /// <response code="400">If the user already exists.</response>
         [HttpPost]
         [CustomAuthorize("TellerPerson")]
         public async Task<ActionResult<Users>> AddUsers(UserCreationDTO user)
@@ -66,6 +89,11 @@ namespace BankingSystem.API.Controllers
             return Ok(users);
         }
 
+        /// <summary>
+        /// Deletes a user by Id.
+        /// </summary>
+        /// <param name="Id">The Id of the user to delete.</param>
+        /// <returns>A NoContent response.</returns>
         [HttpDelete("{Id}")]
         [CustomAuthorize("TellerPerson")]
         public ActionResult DeleteUser(Guid Id)
@@ -74,6 +102,12 @@ namespace BankingSystem.API.Controllers
             return NoContent();
         }
 
+        /// <summary>
+        /// Updates the user with the specified Id using the given UserUpdateDTO.
+        /// </summary>
+        /// <param name="Id">The Id of the user to update.</param>
+        /// <param name="user">The updated user information.</param>
+        /// <returns>The updated user.</returns>
         [HttpPut("{Id}")]
         public async Task<ActionResult<Users>> UpdateUsers(Guid Id, UserUpdateDTO user)
         {
@@ -85,6 +119,12 @@ namespace BankingSystem.API.Controllers
             return Ok(newUser);
         }
 
+        /// <summary>
+        /// Resets the password of a user.
+        /// </summary>
+        /// <param name="username">The username of the user to reset the password for.</param>
+        /// <param name="password">The new password to set.</param>
+        /// <returns>The user with the updated password.</returns>
         [HttpPut("/resetPassword/{username}")]
         public async Task<ActionResult<Users>> ResetPassword(string username, string password)
         {
@@ -96,6 +136,13 @@ namespace BankingSystem.API.Controllers
             return Ok(newUser);
         }
 
+        /// <summary>
+        /// Changes the password of a user.
+        /// </summary>
+        /// <param name="Id">The Id of the user to change password for.</param>
+        /// <param name="oldPassword">The user's current password.</param>
+        /// <param name="newPassword">The new password to set.</param>
+        /// <returns>The user with the updated password.</returns>
         [HttpPut("/changePassword/{Id}")]
         public async Task<ActionResult<Users>> ChangePassword(Guid Id, string oldPassword, string newPassword)
         {
@@ -107,6 +154,12 @@ namespace BankingSystem.API.Controllers
             return Ok(newUser);
         }
 
+        /// <summary>
+        /// Patches the user details by applying a JSON Patch Document to the user.
+        /// </summary>
+        /// <param name="Id">The Id of the user to be patched.</param>
+        /// <param name="patchDocument">The JSON Patch Document to be applied to the user.</param>
+        /// <returns>The patched user.</returns>
         [HttpPatch("{Id}")]
         public async Task<ActionResult<Users>> PatchUserDetails(Guid Id, JsonPatchDocument<UserCreationDTO> patchDocument)
         {
