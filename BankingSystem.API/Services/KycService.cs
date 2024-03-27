@@ -60,30 +60,50 @@ namespace BankingSystem.API.Services
 
         public async Task<KycDocument> UpdateKycDocumentAsync(Guid KYCId, KycDocumentDTO updatedKycDocumentDto)
         {
-            var updatedKycDocument = _mapper.Map<KycDocument>(updatedKycDocumentDto);
-            updatedKycDocument.UserImagePath = await ValidateAndUploadFile(updatedKycDocumentDto.UserImageFile);
-            updatedKycDocument.CitizenshipImagePath = await ValidateAndUploadFile(updatedKycDocumentDto.CitizenshipImageFile);
-
-
             var existingKycDocument = await _kycRepository.GetKYCIdAsync(KYCId);
             if (existingKycDocument == null)
             {
                 return null;
             }
-            existingKycDocument.FatherName = updatedKycDocument.FatherName;
-            existingKycDocument.MotherName = updatedKycDocument.MotherName;
-            existingKycDocument.GrandFatherName = updatedKycDocument.GrandFatherName;
-            existingKycDocument.PermanentAddress = updatedKycDocument.PermanentAddress;
-            existingKycDocument.UploadedAt = updatedKycDocument.UploadedAt;
-            existingKycDocument.UserImagePath = updatedKycDocument.UserImagePath;
-            existingKycDocument.CitizenshipImagePath = updatedKycDocument.CitizenshipImagePath;
 
-            if (existingKycDocument.UserImagePath != "" && updatedKycDocument.CitizenshipImagePath != "")
+            // Exclude UserId from mapping and update
+            updatedKycDocumentDto.UserId = existingKycDocument.UserId;
+
+            var updatedKycDocument = _mapper.Map<KycDocument>(updatedKycDocumentDto);
+
+            // Update properties if not null
+            if (updatedKycDocumentDto.FatherName != null)
+                existingKycDocument.FatherName = updatedKycDocument.FatherName;
+
+            if (updatedKycDocumentDto.MotherName != null)
+                existingKycDocument.MotherName = updatedKycDocument.MotherName;
+
+            if (updatedKycDocumentDto.GrandFatherName != null)
+                existingKycDocument.GrandFatherName = updatedKycDocument.GrandFatherName;
+
+            if (updatedKycDocumentDto.PermanentAddress != null)
+                existingKycDocument.PermanentAddress = updatedKycDocument.PermanentAddress;
+
+            // Handle file uploads only if files are provided
+            existingKycDocument.UserImagePath = updatedKycDocumentDto.UserImageFile != null ?
+                                                 await ValidateAndUploadFile(updatedKycDocumentDto.UserImageFile) :
+                                                 existingKycDocument.UserImagePath;
+
+            existingKycDocument.CitizenshipImagePath = updatedKycDocumentDto.CitizenshipImageFile != null ?
+                                                       await ValidateAndUploadFile(updatedKycDocumentDto.CitizenshipImageFile) :
+                                                       existingKycDocument.CitizenshipImagePath;
+
+            // Update IsApproved flag based on conditions
+            if (!string.IsNullOrEmpty(existingKycDocument.UserImagePath) && !string.IsNullOrEmpty(existingKycDocument.CitizenshipImagePath))
             {
-                updatedKycDocument.IsApproved = true;
+                existingKycDocument.IsApproved = true;
             }
+
             return await _kycRepository.UpdateKycDocumentAsync(KYCId, existingKycDocument);
         }
+
+
+
 
         public async Task<string> ValidateAndUploadFile(IFormFile fileInput)
         {

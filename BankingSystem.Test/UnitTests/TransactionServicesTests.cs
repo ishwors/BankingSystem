@@ -30,8 +30,8 @@ namespace BankingSystem.Test.UnitTests
 
             var mapperMock = new Mock<IMapper>();
             var emailServiceMock = new Mock<IEmailService>();
-            var userRepositoryMock = new Mock<IUserRepository>();
-            var accountRepositoryMock = new Mock<IAccountRepository>();
+            var userRepositoryMock = new Mock<IUserService>();
+            var accountRepositoryMock = new Mock<IAccountService>();
 
 
             var transactionServices = new TransactionServices(
@@ -72,8 +72,8 @@ namespace BankingSystem.Test.UnitTests
             mapperMock.Setup(mapper => mapper.Map<Transaction>(depositTransactionDto)).Returns(new Transaction());
 
             var emailServiceMock = new Mock<IEmailService>();
-            var userRepositoryMock = new Mock<IUserRepository>();
-            var accountRepositoryMock = new Mock<IAccountRepository>();
+            var userRepositoryMock = new Mock<IUserService>();
+            var accountRepositoryMock = new Mock<IAccountService>();
 
             // Set up the mocked behavior for AccountRepository.GetAccountByAccountNumberAsync
             var account = new Accounts { UserId = userId };
@@ -125,8 +125,8 @@ namespace BankingSystem.Test.UnitTests
             mapperMock.Setup(mapper => mapper.Map<Transaction>(withdrawTransactionDto)).Returns(new Transaction());
 
             var emailServiceMock = new Mock<IEmailService>();
-            var userRepositoryMock = new Mock<IUserRepository>();
-            var accountRepositoryMock = new Mock<IAccountRepository>();
+            var userRepositoryMock = new Mock<IUserService>();
+            var accountRepositoryMock = new Mock<IAccountService>();
 
             // Set up the mocked behavior for AccountRepository.GetAccountByAccountNumberAsync
             var userId = Guid.NewGuid();

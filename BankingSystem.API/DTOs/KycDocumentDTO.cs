@@ -4,28 +4,22 @@ namespace BankingSystem.API.DTOs
 {
     public class KycDocumentDTO
     {
-        [Required]
         public Guid UserId { get; set; }
 
-        [Required]
         [MaxLength(50)]
-        public string FatherName { get; set; }
-
-        [Required]
-        public string MotherName { get; set; }
-
-        [Required]
+        public string? FatherName { get; set; }
         [MaxLength(50)]
-        public string GrandFatherName { get; set; }
+        public string? MotherName { get; set; }
 
-        [Required]
-        public IFormFile UserImageFile { get; set; }
+        [MaxLength(50)]
+        public string? GrandFatherName { get; set; }
 
-        [Required]
-        public IFormFile CitizenshipImageFile { get; set; }
+        public IFormFile? UserImageFile { get; set; }
 
-        [Required]
-        public string PermanentAddress { get; set; }
+        public IFormFile? CitizenshipImageFile { get; set; }
+
+        [MaxLength(50)]
+        public string? PermanentAddress { get; set; }
 
         public KycDocumentDTO()
         {

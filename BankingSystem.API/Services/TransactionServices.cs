@@ -15,17 +15,17 @@ namespace BankingSystem.API.Services
         private readonly ITransactionRepository _transactionRepository;
         private readonly IMapper _mapper;
         private readonly IEmailService _emailService;
-        private readonly IAccountRepository AccountRepository;
-        private readonly IUserRepository UserRepository;
+        private readonly IAccountService _accountService;
+        private readonly IUserService _userService;
         private readonly GetLoggedinUser _getLoggedinUser;
 
-        public TransactionServices(ITransactionRepository transactionRepository, IMapper mapper, IEmailService emailService, IUserRepository userRepository, IAccountRepository accountRepository, GetLoggedinUser getLoggedinUser)
+        public TransactionServices(ITransactionRepository transactionRepository, IMapper mapper, IEmailService emailService, IUserService userService, IAccountService accountService, GetLoggedinUser getLoggedinUser)
         {
             _transactionRepository = transactionRepository ?? throw new ArgumentOutOfRangeException(nameof(transactionRepository));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
-            UserRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
-            AccountRepository = accountRepository ?? throw new ArgumentNullException(nameof(userRepository));
+            _userService = userService ?? throw new ArgumentNullException(nameof(userService));
+            _accountService = accountService ?? throw new ArgumentException(nameof(accountService));
             _getLoggedinUser = getLoggedinUser;
         }
 
@@ -53,51 +53,69 @@ namespace BankingSystem.API.Services
         {
             var transaction = _mapper.Map<Transaction>(transactionDto);
 
-            var account = await AccountRepository.GetAccountByAccountNumberAsync(accountNumber);
-
-            var user = await UserRepository.GetUserAsync(account.UserId);
-
             var depositTeller = _getLoggedinUser.GetCurrentUserId();
             transaction.LoggedInTeller = depositTeller;
 
-            var emailBody = EmailTemplates.EmailBodyForTransactionDeposit(user.Fullname,transactionDto.Amount, transactionDto.TransactionRemarks, transaction.TransactionTime);
+            var depositedTransaction = await _transactionRepository.DepositTransactionAsync(transaction, accountNumber, userId);
 
-            // Prepare email
-            var email = new Email
+            if (depositedTransaction != null)
             {
-                MailSubject = "Amount Deposited",
-                MailBody = emailBody,
-                ReceiverEmail = user.Email // Use the user's email address obtained from the UserDTO
-            };
 
-            // Send email
-            await _emailService.SendEmailAsync(email);
+                //get the account object from accountNumber
+                var account = await _accountService.GetAccountByAccountNumberAsync(accountNumber);
 
-            return await _transactionRepository.DepositTransactionAsync(transaction, accountNumber, userId);
+                //get the user object from userId in account object
+                var user = await _userService.GetUserAsync(account.UserId);
+
+                //get the email body string from Email Templates file
+                var emailBody = EmailTemplates.EmailBodyForTransactionDeposit(user.Fullname, transactionDto.Amount, transactionDto.TransactionRemarks, transaction.TransactionTime);
+
+                // Prepare email
+                var email = new Email
+                {
+                    MailSubject = "Amount Deposited",
+                    MailBody = emailBody,
+                    ReceiverEmail = user.Email // Use the user's email address obtained from the UserDTO
+                };
+
+                // Send email
+                await _emailService.SendEmailAsync(email);
+            }
+
+            return depositedTransaction;
         }
 
         public async Task<Transaction> WithdrawTransactionAsync(WithdrawTransactionDTO withdrawDto, long accountNumber, int atmIdAtmCardPin)
         {
             var transaction = _mapper.Map<Transaction>(withdrawDto);
 
-            var account = await AccountRepository.GetAccountByAccountNumberAsync(accountNumber);
+            var withdrawnTransaction = await _transactionRepository.WithdrawTransactionAsync(transaction, accountNumber, atmIdAtmCardPin);
 
-            var user = await UserRepository.GetUserAsync(account.UserId);
-
-            var emailBody = EmailTemplates.EmailBodyForTransactionDeposit(user.Fullname, withdrawDto.Amount, withdrawDto.TransactionRemarks, transaction.TransactionTime);
-
-            // Prepare email
-            var email = new Email
+            if (withdrawnTransaction != null)
             {
-                MailSubject = "Amount Withdrawn",
-                MailBody = emailBody,
-                ReceiverEmail = user.Email // Use the user's email address obtained from the UserDTO
-            };
 
-            // Send email
-            await _emailService.SendEmailAsync(email);
+                //get the account object from accountNumber
+                var account = await _accountService.GetAccountByAccountNumberAsync(accountNumber);
 
-            return await _transactionRepository.WithdrawTransactionAsync(transaction, accountNumber, atmIdAtmCardPin);
+                //get the user object from userId in account object
+                var user = await _userService.GetUserAsync(account.UserId);
+
+                //get the email body string from Email Templates file
+                var emailBody = EmailTemplates.EmailBodyForTransactionDeposit(user.Fullname, withdrawDto.Amount, withdrawDto.TransactionRemarks, transaction.TransactionTime);
+
+                // Prepare email
+                var email = new Email
+                {
+                    MailSubject = "Amount Withdrawn",
+                    MailBody = emailBody,
+                    ReceiverEmail = user.Email // Use the user's email address obtained from the UserDTO
+                };
+
+                // Send email
+                await _emailService.SendEmailAsync(email);
+
+            }
+            return withdrawnTransaction;
         }
     }
 }

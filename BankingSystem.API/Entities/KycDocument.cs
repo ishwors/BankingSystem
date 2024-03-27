@@ -16,15 +16,12 @@ namespace BankingSystem.API.Entities
         [ForeignKey("UserId")]
         public Users User { get; set; }
 
-        [Required]
         [MaxLength(50)]
         public string FatherName { get; set; }
 
-        [Required]
         [MaxLength(50)]
         public string MotherName { get; set; }
 
-        [Required]
         [MaxLength(50)]
         public string GrandFatherName { get; set; }
 

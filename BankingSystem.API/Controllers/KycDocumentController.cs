@@ -3,6 +3,7 @@ using BankingSystem.API.Entities;
 using BankingSystem.API.Services.IServices;
 using BankingSystem.API.Utilities.CustomAuthorizations;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 
 namespace BankingSystem.API.Controllers
 {
@@ -61,7 +62,7 @@ namespace BankingSystem.API.Controllers
         /// <param name="kycDocumentDto">The DTO containing the data for the new KYC Document.</param>
         /// <returns>The created KYC Document.</returns>
         [HttpPost]
-        public async Task<ActionResult<KycDocument>> AddKycDocumentAsync(KycDocumentDTO kycDocumentDto)
+        public async Task<ActionResult<KycDocument>> AddKycDocumentAsync([Required] KycDocumentDTO kycDocumentDto)
         {
             var kycDocument = await _kycService.AddKycDocumentAsync(kycDocumentDto);
             return Ok(kycDocument);
@@ -73,8 +74,9 @@ namespace BankingSystem.API.Controllers
         /// <param name="KycId">The Id of the KYC Document.</param>
         /// <param name="kycDocumentDto">The DTO containing the data for the updated KYC Document.</param>
         /// <returns>The updated KYC Document if successful, otherwise BadRequest.</returns>
-        [HttpPut("{KycId}")]
-        public async Task<ActionResult<KycDocument>> UpdateKycDocument(Guid KycId, KycDocumentDTO kycDocumentDto)
+
+        [HttpPut]
+        public async Task<ActionResult<KycDocument>> UpdateKycDocumentAsync(Guid KycId, KycDocumentDTO kycDocumentDto)
         {
             var updatedKycDocument = await _kycService.UpdateKycDocumentAsync(KycId, kycDocumentDto);
             if (updatedKycDocument == null)

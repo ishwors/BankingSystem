@@ -136,12 +136,24 @@ namespace BankingSystem.API.Services
 
         private async Task CreateUserAccount(Users user, Guid userId)
         {
+            long accountNumber;
+            bool accountExists;
+
+            do
+            {
+                //to generate random account number
+                accountNumber = RandomNumberGeneratorHelper.GenerateRandomNumber(1);
+                accountExists = await AccountServices.GetAccountByAccountNumberAsync(accountNumber) != null;
+            } while (accountExists);
+
             var accountDTO = new Accounts
             {
                 AccountId = Guid.NewGuid(),
                 UserId = user.Id,
-                AccountNumber = RandomNumberGeneratorHelper.GenerateRandomNumber(1),
+                AccountNumber = accountNumber,
+                //to generate random atm card number
                 AtmCardNum = RandomNumberGeneratorHelper.GenerateRandomNumber(2),
+                //to generate random atm card pin
                 AtmCardPin = (int)RandomNumberGeneratorHelper.GenerateRandomNumber(3),
                 Balance = 0,
                 CreatedAt = DateTime.UtcNow,
