@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Threading.Tasks;
-using AutoMapper;
+﻿using AutoMapper;
 using BankingSystem.API.Data.Repository.IRepository;
 using BankingSystem.API.DTOs;
 using BankingSystem.API.Entities;
@@ -11,7 +7,7 @@ using BankingSystem.API.Services.IServices;
 using Moq;
 using Xunit;
 
-namespace BankingSystem.API.Tests
+namespace BankingSystem.Test.UnitTests
 {
     public class AccountServicesTests
     {

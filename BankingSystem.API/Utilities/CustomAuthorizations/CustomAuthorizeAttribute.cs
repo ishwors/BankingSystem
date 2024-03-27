@@ -1,8 +1,7 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
-namespace BankingSystem.API.Utilities
+namespace BankingSystem.API.Utilities.CustomAuthorizations
 {
     public class CustomAuthorizeAttribute : Attribute, IAuthorizationFilter
     {

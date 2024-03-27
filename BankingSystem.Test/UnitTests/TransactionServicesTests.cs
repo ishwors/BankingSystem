@@ -1,9 +1,13 @@
-﻿using AutoMapper;
-using BankingSystem.API.Data.Repository.IRepository;
+﻿using Moq;
+using AutoMapper;
 using BankingSystem.API.DTOs;
 using BankingSystem.API.Entities;
 using BankingSystem.API.Services;
-using Moq;
+using BankingSystem.API.Services.IServices;
+using BankingSystem.API.Data.Repository.IRepository;
+using BankingSystem.API.Utilities;
+using Microsoft.AspNetCore.Http;
+
 
 namespace BankingSystem.Test.UnitTests
 {
@@ -15,18 +19,28 @@ namespace BankingSystem.Test.UnitTests
             // Arrange
             var accountId = 112233445566;
             var expectedTransactions = new List<Transaction>
-            {
-                new Transaction { AccountId = Guid.NewGuid(), Amount = 100, TransactionTime = DateTime.Now },
-                new Transaction { AccountId = Guid.NewGuid(), Amount = 200, TransactionTime = DateTime.Now.AddDays(-1) }
-            };
+                {
+                    new Transaction { AccountId = Guid.NewGuid(), Amount = 100, TransactionTime = DateTime.Now },
+                    new Transaction { AccountId = Guid.NewGuid(), Amount = 200, TransactionTime = DateTime.Now.AddDays(-1) }
+                };
 
             var transactionRepositoryMock = new Mock<ITransactionRepository>();
             transactionRepositoryMock.Setup(repo => repo.GetTransactionsOfAccountAsync(accountId))
                 .ReturnsAsync(expectedTransactions);
 
             var mapperMock = new Mock<IMapper>();
+            var emailServiceMock = new Mock<IEmailService>();
+            var userRepositoryMock = new Mock<IUserRepository>();
+            var accountRepositoryMock = new Mock<IAccountRepository>();
 
-            var transactionServices = new TransactionServices(transactionRepositoryMock.Object, mapperMock.Object);
+
+            var transactionServices = new TransactionServices(
+                transactionRepositoryMock.Object,
+                mapperMock.Object,
+                emailServiceMock.Object,
+                userRepositoryMock.Object,
+                accountRepositoryMock.Object,
+                null);
 
             // Act
             var result = await transactionServices.GetTransactionsOfAccountAsync(accountId);
@@ -36,6 +50,7 @@ namespace BankingSystem.Test.UnitTests
             Assert.IsAssignableFrom<IEnumerable<Transaction>>(result);
             Assert.Equal(expectedTransactions.Count, ((List<Transaction>)result).Count);
         }
+
 
 
 
@@ -54,9 +69,31 @@ namespace BankingSystem.Test.UnitTests
                 .ReturnsAsync(expectedTransaction);
 
             var mapperMock = new Mock<IMapper>();
-            mapperMock.Setup(mapper => mapper.Map<Transaction>(depositTransactionDto)).Returns(new Transaction()); // Mock mapper to return a new Transaction instance
+            mapperMock.Setup(mapper => mapper.Map<Transaction>(depositTransactionDto)).Returns(new Transaction());
 
-            var transactionServices = new TransactionServices(transactionRepositoryMock.Object, mapperMock.Object);
+            var emailServiceMock = new Mock<IEmailService>();
+            var userRepositoryMock = new Mock<IUserRepository>();
+            var accountRepositoryMock = new Mock<IAccountRepository>();
+
+            // Set up the mocked behavior for AccountRepository.GetAccountByAccountNumberAsync
+            var account = new Accounts { UserId = userId };
+            accountRepositoryMock.Setup(repo => repo.GetAccountByAccountNumberAsync(accountNumber))
+                .ReturnsAsync(account);
+
+            // Set up the mocked behavior for UserRepository.GetUserAsync
+            var user = new Users { Fullname = "Ishwor Shrestha", Email = "ishwors@example.com" };
+            userRepositoryMock.Setup(repo => repo.GetUserAsync(userId))
+                .ReturnsAsync(user);
+
+            var contextMock = new Mock<IHttpContextAccessor>();
+            var getLoggedInUserMock = new Mock<GetLoggedinUser>(contextMock.Object);
+
+            var transactionServices = new TransactionServices(
+                transactionRepositoryMock.Object,
+                mapperMock.Object,
+                emailServiceMock.Object,
+                userRepositoryMock.Object,
+                accountRepositoryMock.Object, getLoggedInUserMock.Object);
 
             // Act
             var result = await transactionServices.DepositTransactionAsync(depositTransactionDto, accountNumber, userId);
@@ -66,6 +103,7 @@ namespace BankingSystem.Test.UnitTests
             Assert.IsType<Transaction>(result);
             Assert.Equal(expectedTransaction.Amount, result.Amount);
         }
+
 
 
 
@@ -84,9 +122,30 @@ namespace BankingSystem.Test.UnitTests
                 .ReturnsAsync(expectedTransaction);
 
             var mapperMock = new Mock<IMapper>();
-            mapperMock.Setup(mapper => mapper.Map<Transaction>(withdrawTransactionDto)).Returns(new Transaction()); // Mock mapper to return a new Transaction instance
+            mapperMock.Setup(mapper => mapper.Map<Transaction>(withdrawTransactionDto)).Returns(new Transaction());
 
-            var transactionServices = new TransactionServices(transactionRepositoryMock.Object, mapperMock.Object);
+            var emailServiceMock = new Mock<IEmailService>();
+            var userRepositoryMock = new Mock<IUserRepository>();
+            var accountRepositoryMock = new Mock<IAccountRepository>();
+
+            // Set up the mocked behavior for AccountRepository.GetAccountByAccountNumberAsync
+            var userId = Guid.NewGuid();
+            var account = new Accounts { UserId = userId };
+            accountRepositoryMock.Setup(repo => repo.GetAccountByAccountNumberAsync(accountNumber))
+                .ReturnsAsync(account);
+
+            // Set up the mocked behavior for UserRepository.GetUserAsync
+            var user = new Users { Fullname = "Ishwor Shrestha", Email = "ishwors@example.com" };
+            userRepositoryMock.Setup(repo => repo.GetUserAsync(userId))
+                .ReturnsAsync(user);
+
+            var transactionServices = new TransactionServices(
+                transactionRepositoryMock.Object,
+                mapperMock.Object,
+                emailServiceMock.Object,
+                userRepositoryMock.Object,
+                accountRepositoryMock.Object,
+                null);
 
             // Act
             var result = await transactionServices.WithdrawTransactionAsync(withdrawTransactionDto, accountNumber, atmIdAtmCardPin);
@@ -96,7 +155,6 @@ namespace BankingSystem.Test.UnitTests
             Assert.IsType<Transaction>(result);
             Assert.Equal(expectedTransaction.Amount, result.Amount);
         }
+
     }
 }
-
-

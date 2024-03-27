@@ -1,7 +1,7 @@
 using BankingSystem.API.DTOs;
 using BankingSystem.API.Entities;
 using BankingSystem.API.Services.IServices;
-using BankingSystem.API.Utilities;
+using BankingSystem.API.Utilities.CustomAuthorizations;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 
@@ -41,6 +41,7 @@ namespace BankingSystem.API.Controllers
         /// <param name="id">The Id of the user.</param>
         /// <returns>The user with the given Id.</returns>
         [HttpGet("{id}")]
+        [RequireLoggedIn]
         public async Task<ActionResult<Users>> GetUser(Guid id)
         {
             var user = await userService.GetUserAsync(id);
@@ -109,6 +110,7 @@ namespace BankingSystem.API.Controllers
         /// <param name="user">The updated user information.</param>
         /// <returns>The updated user.</returns>
         [HttpPut("{Id}")]
+        [RequireLoggedIn]
         public async Task<ActionResult<Users>> UpdateUsers(Guid Id, UserUpdateDTO user)
         {
             var newUser = await userService.UpdateUsersAsync(Id, user);
@@ -144,6 +146,7 @@ namespace BankingSystem.API.Controllers
         /// <param name="newPassword">The new password to set.</param>
         /// <returns>The user with the updated password.</returns>
         [HttpPut("/changePassword/{Id}")]
+        [RequireLoggedIn]
         public async Task<ActionResult<Users>> ChangePassword(Guid Id, string oldPassword, string newPassword)
         {
             var newUser = await userService.ChangePasswordAsync(Id, oldPassword, newPassword);
@@ -161,6 +164,7 @@ namespace BankingSystem.API.Controllers
         /// <param name="patchDocument">The JSON Patch Document to be applied to the user.</param>
         /// <returns>The patched user.</returns>
         [HttpPatch("{Id}")]
+        [RequireLoggedIn]
         public async Task<ActionResult<Users>> PatchUserDetails(Guid Id, JsonPatchDocument<UserCreationDTO> patchDocument)
         {
             var user = await userService.PatchUserDetails(Id, patchDocument);

@@ -4,6 +4,7 @@ using BankingSystem.API.Data.Repository.IRepository;
 using BankingSystem.API.DTOs;
 using BankingSystem.API.Entities;
 using BankingSystem.API.Services.IServices;
+using BankingSystem.API.Utilities;
 using BankingSystem.API.Utilities.EmailTemplates;
 using System.Security.Principal;
 
@@ -16,13 +17,16 @@ namespace BankingSystem.API.Services
         private readonly IEmailService _emailService;
         private readonly IAccountRepository AccountRepository;
         private readonly IUserRepository UserRepository;
-        public TransactionServices(ITransactionRepository transactionRepository, IMapper mapper, IEmailService emailService, IUserRepository userRepository, IAccountRepository accountRepository)
+        private readonly GetLoggedinUser _getLoggedinUser;
+
+        public TransactionServices(ITransactionRepository transactionRepository, IMapper mapper, IEmailService emailService, IUserRepository userRepository, IAccountRepository accountRepository, GetLoggedinUser getLoggedinUser)
         {
             _transactionRepository = transactionRepository ?? throw new ArgumentOutOfRangeException(nameof(transactionRepository));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
             UserRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
             AccountRepository = accountRepository ?? throw new ArgumentNullException(nameof(userRepository));
+            _getLoggedinUser = getLoggedinUser;
         }
 
         public async Task<IEnumerable<Transaction>> GetTransactionsOfAccountAsync(long accountNumber)
@@ -53,7 +57,10 @@ namespace BankingSystem.API.Services
 
             var user = await UserRepository.GetUserAsync(account.UserId);
 
-            var emailBody = EmailTemplates.EmailBodyForTransactionDeposit(user.Fullname,transactionDto.Amount, transactionDto.TransactionRemarks, transactionDto.TransactionTime);
+            var depositTeller = _getLoggedinUser.GetCurrentUserId();
+            transaction.LoggedInTeller = depositTeller;
+
+            var emailBody = EmailTemplates.EmailBodyForTransactionDeposit(user.Fullname,transactionDto.Amount, transactionDto.TransactionRemarks, transaction.TransactionTime);
 
             // Prepare email
             var email = new Email
@@ -77,7 +84,7 @@ namespace BankingSystem.API.Services
 
             var user = await UserRepository.GetUserAsync(account.UserId);
 
-            var emailBody = EmailTemplates.EmailBodyForTransactionDeposit(user.Fullname, withdrawDto.Amount, withdrawDto.TransactionRemarks, withdrawDto.TransactionTime);
+            var emailBody = EmailTemplates.EmailBodyForTransactionDeposit(user.Fullname, withdrawDto.Amount, withdrawDto.TransactionRemarks, transaction.TransactionTime);
 
             // Prepare email
             var email = new Email

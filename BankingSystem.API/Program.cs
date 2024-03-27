@@ -61,6 +61,7 @@ builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
 builder.Services.AddScoped<ITransactionService, TransactionServices>();
 
 builder.Services.AddScoped<IEmailService,EmailService>();
+builder.Services.AddScoped<GetLoggedinUser>();
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies()); //searches for all profiles automatically
 

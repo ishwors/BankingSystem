@@ -10,7 +10,5 @@ namespace BankingSystem.API.DTOs
 
         public string ? TransactionRemarks { get; set; }
 
-        public DateTime TransactionTime { get; set; }
-
     }
 }

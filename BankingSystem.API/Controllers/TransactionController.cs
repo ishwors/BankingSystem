@@ -1,8 +1,7 @@
 ﻿using BankingSystem.API.DTOs;
 using BankingSystem.API.Entities;
-using BankingSystem.API.Services;
 using BankingSystem.API.Services.IServices;
-using BankingSystem.API.Utilities;
+using BankingSystem.API.Utilities.CustomAuthorizations;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -41,6 +40,7 @@ namespace BankingSystem.API.Controllers
         [ProducesResponseType(typeof(IEnumerable<Transaction>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Route("{accountNumber}")]
+        [RequireLoggedIn]
         public async Task<ActionResult<IEnumerable<Transaction>>> GetTransactions(long accountNumber)
         {
             var transactions = await _transactionServices.GetTransactionsOfAccountAsync(accountNumber);

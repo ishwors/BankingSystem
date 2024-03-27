@@ -25,9 +25,9 @@ namespace BankingSystem.API.Services
         private readonly SignInManager<Users> _signInManager;
         private readonly IPasswordHasher<Users> _passwordHasher;
 
-        private readonly IHttpContextAccessor _httpContextAccessor;
+       private readonly GetLoggedinUser _getLoggedinUser;
 
-        public UserService(IUserRepository userRepository, IMapper mapper, IAccountService accountServices, UserManager<Users> userManager, SignInManager<Users> signInManager, IPasswordHasher<Users> passwordHasher, IHttpContextAccessor httpContextAccessor)
+        public UserService(IUserRepository userRepository, IMapper mapper, IAccountService accountServices, UserManager<Users> userManager, SignInManager<Users> signInManager, IPasswordHasher<Users> passwordHasher, GetLoggedinUser getLoggedinUser)
         {
             UserRepository = userRepository ?? throw new ArgumentOutOfRangeException(nameof(userRepository));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
@@ -35,7 +35,8 @@ namespace BankingSystem.API.Services
             _userManager = userManager;
             _signInManager = signInManager;
             _passwordHasher = passwordHasher;
-            _httpContextAccessor = httpContextAccessor;
+            //_httpContextAccessor = httpContextAccessor;
+            _getLoggedinUser = getLoggedinUser;
         }
 
         public async Task<Users?> GetUserAsync(Guid Id)
@@ -69,7 +70,7 @@ namespace BankingSystem.API.Services
 
             checkValidation(users);
 
-            var userId = GetCurrentUserId();
+            var userId = _getLoggedinUser.GetCurrentUserId();
             finalUser.CreatedBy = userId;
 
             var user = new Users()
@@ -106,7 +107,7 @@ namespace BankingSystem.API.Services
                 else
                 {
                     await _userManager.AddToRoleAsync(user, UserRoles.AccountHolder.ToString());
-                    await CreateUserAccount(users, user);
+                    await CreateUserAccount(user, userId);
                 }
                 return await AddRoleForDisplay(user);
             }
@@ -133,7 +134,7 @@ namespace BankingSystem.API.Services
             }
         }
 
-        private async Task CreateUserAccount(UserCreationDTO users, Users user)
+        private async Task CreateUserAccount(Users user, Guid userId)
         {
             var accountDTO = new Accounts
             {
@@ -144,7 +145,7 @@ namespace BankingSystem.API.Services
                 AtmCardPin = (int)RandomNumberGeneratorHelper.GenerateRandomNumber(3),
                 Balance = 0,
                 CreatedAt = DateTime.UtcNow,
-                CreatedBy = user.Id,
+                CreatedBy = userId,
                 ModifiedAt = null,
                 ModifiedBy = null,
             };
@@ -178,7 +179,7 @@ namespace BankingSystem.API.Services
             //user exists: add Id to the incoming changes for the user
             finalUser.Id = Id;
 
-            var userId = GetCurrentUserId();
+            var userId = _getLoggedinUser.GetCurrentUserId();
             existingUser.ModifiedBy = userId;
 
             var user = await UserRepository.UpdateUsersAsync(finalUser);
@@ -201,7 +202,7 @@ namespace BankingSystem.API.Services
                 var newPasswordHash = _passwordHasher.HashPassword(existingUser, password);
                 existingUser.PasswordHash = newPasswordHash;
             }
-            var userId= GetCurrentUserId(); 
+            var userId= _getLoggedinUser.GetCurrentUserId(); 
             existingUser.ModifiedBy = userId;
             
             var user = await UserRepository.UpdatePasswordAsync(existingUser);
@@ -241,7 +242,7 @@ namespace BankingSystem.API.Services
                 throw new Exception($"Old Password is incorrect.");
             }
 
-            var userId = GetCurrentUserId();
+            var userId = _getLoggedinUser.GetCurrentUserId();
             existingUser.ModifiedBy = userId;
            
             var user = await UserRepository.UpdatePasswordAsync(existingUser);
@@ -311,18 +312,6 @@ namespace BankingSystem.API.Services
             var userDTO = _mapper.Map<UserInfoDisplayDTO>(user);
             userDTO.UserType = userType;
             return userDTO;
-        }
-
-        public Guid? GetCurrentUserId()
-        {
-            Guid userId;
-            var currentUserId = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (Guid.TryParse(currentUserId, out userId))
-            {
-                // currentUserId is successfully parsed as a GUID
-                return userId;
-            }
-            return null;
         }
 
     }

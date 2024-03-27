@@ -100,7 +100,11 @@ namespace BankingSystem.API.Data.Repository
                 transaction.AccountId = account.AccountId;
 
                 _context.Transactions.Add(transaction);
+
                 account.Balance += transaction.Amount;
+                account.ModifiedBy = userId;
+                account.ModifiedAt= DateTime.UtcNow;
+
                 await _context.SaveChangesAsync();
                 return transaction;
             }
@@ -150,7 +154,11 @@ namespace BankingSystem.API.Data.Repository
                 transaction.AccountId = account.AccountId;
 
                 _context.Transactions.Add(transaction);
+
                 account.Balance -= transaction.Amount;
+                account.ModifiedBy = account.UserId;
+                account.ModifiedAt = DateTime.UtcNow;
+
                 await _context.SaveChangesAsync();
                 return transaction;
             }

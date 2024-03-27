@@ -1,7 +1,7 @@
 ﻿using BankingSystem.API.DTOs;
 using BankingSystem.API.Entities;
 using BankingSystem.API.Services.IServices;
-using BankingSystem.API.Utilities;
+using BankingSystem.API.Utilities.CustomAuthorizations;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BankingSystem.API.Controllers
@@ -12,6 +12,7 @@ namespace BankingSystem.API.Controllers
     /// </summary>
     [ApiController]
     [Route("api/kycdocument")]
+    [RequireLoggedIn]
     public class KycDocumentController : ControllerBase
     {
         private readonly IKycService _kycService;

@@ -1,8 +1,7 @@
 ﻿using BankingSystem.API.DTOs;
 using BankingSystem.API.Entities;
-using BankingSystem.API.Services;
 using BankingSystem.API.Services.IServices;
-using BankingSystem.API.Utilities;
+using BankingSystem.API.Utilities.CustomAuthorizations;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BankingSystem.API.Controllers
@@ -12,6 +11,7 @@ namespace BankingSystem.API.Controllers
     /// </summary>
     [ApiController]
     [Route("api/accounts")]
+    [RequireLoggedIn]
     public class AccountsController : ControllerBase
     {
         private readonly IAccountService accountServices;

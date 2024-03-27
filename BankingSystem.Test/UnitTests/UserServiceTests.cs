@@ -4,6 +4,7 @@ using BankingSystem.API.DTOs;
 using BankingSystem.API.Entities;
 using BankingSystem.API.Services;
 using BankingSystem.API.Services.IServices;
+using BankingSystem.API.Utilities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.JsonPatch;
@@ -50,8 +51,9 @@ namespace BankingSystem.Test.UnitTests
             var accountServicesMock = new Mock<IAccountService>();
 
             var contextMock = new Mock<IHttpContextAccessor>();
+            var getLoggedInUserMock = new Mock<GetLoggedinUser>(contextMock.Object);
 
-            var userService = new UserService(userRepositoryMock.Object, mapper, accountServicesMock.Object, userManagerMock.Object, signInManagerMock.Object, passwordHasherMock.Object, contextMock.Object);
+            var userService = new UserService(userRepositoryMock.Object, mapper, accountServicesMock.Object, userManagerMock.Object, signInManagerMock.Object, passwordHasherMock.Object, getLoggedInUserMock.Object);
 
             var userCreationDTO = new UserCreationDTO
             {
@@ -134,8 +136,9 @@ namespace BankingSystem.Test.UnitTests
 
             var accountServicesMock = new Mock<IAccountService>();
             var contextMock = new Mock<IHttpContextAccessor>();
+            var getLoggedInUserMock = new Mock<GetLoggedinUser>(contextMock.Object);
 
-            var userService = new UserService(userRepositoryMock.Object, mapperMock.Object, accountServicesMock.Object, userManagerMock.Object, signInManagerMock.Object, passwordHasherMock.Object, contextMock.Object);
+            var userService = new UserService(userRepositoryMock.Object, mapperMock.Object, accountServicesMock.Object, userManagerMock.Object, signInManagerMock.Object, passwordHasherMock.Object, getLoggedInUserMock.Object);
 
             // Set up mocks
             userRepositoryMock.Setup(repo => repo.GetUserAsync(Id))
@@ -186,8 +189,9 @@ namespace BankingSystem.Test.UnitTests
 
             var accountServicesMock = new Mock<IAccountService>();
             var contextMock = new Mock<IHttpContextAccessor>();
+            var getLoggedInUserMock = new Mock<GetLoggedinUser>(contextMock.Object);
 
-            var userService = new UserService(userRepositoryMock.Object, mapper, accountServicesMock.Object, userManagerMock.Object, signInManagerMock.Object, passwordHasherMock.Object, contextMock.Object);
+            var userService = new UserService(userRepositoryMock.Object, mapper, accountServicesMock.Object, userManagerMock.Object, signInManagerMock.Object, passwordHasherMock.Object, getLoggedInUserMock.Object);
 
             // Set up mocks
             var expectedUsers = new List<Users>
@@ -247,8 +251,9 @@ namespace BankingSystem.Test.UnitTests
             var accountServicesMock = new Mock<IAccountService>();
 
             var contextMock = new Mock<IHttpContextAccessor>();
+            var getLoggedInUserMock = new Mock<GetLoggedinUser>(contextMock.Object);
 
-            var userService = new UserService(userRepositoryMock.Object, mapper, accountServicesMock.Object, userManagerMock.Object, signInManagerMock.Object, passwordHasherMock.Object, contextMock.Object);
+            var userService = new UserService(userRepositoryMock.Object, mapper, accountServicesMock.Object, userManagerMock.Object, signInManagerMock.Object, passwordHasherMock.Object, getLoggedInUserMock.Object);
 
             // Mock GetRolesAsync method
             userManagerMock.Setup(um => um.GetRolesAsync(It.IsAny<Users>())).ReturnsAsync(new List<string> { "AccountHolder", "TellerPerson" });
@@ -318,8 +323,9 @@ namespace BankingSystem.Test.UnitTests
             var emailServiceMock = new Mock<IEmailService>();
             var accountServicesMock = new Mock<IAccountService>();
             var contextMock = new Mock<IHttpContextAccessor>();
+            var getLoggedInUserMock = new Mock<GetLoggedinUser>(contextMock.Object);
 
-            var userService = new UserService(userRepositoryMock.Object, mapper, accountServicesMock.Object, userManagerMock.Object, signInManagerMock.Object, passwordHasherMock.Object, contextMock.Object);
+            var userService = new UserService(userRepositoryMock.Object, mapper, accountServicesMock.Object, userManagerMock.Object, signInManagerMock.Object, passwordHasherMock.Object, getLoggedInUserMock.Object);
 
             // Set up GetRolesAsync method
             userManagerMock.Setup(um => um.GetRolesAsync(It.IsAny<Users>())).ReturnsAsync(new List<string> { "AccountHolder", "TellerPerson" });
@@ -368,8 +374,9 @@ namespace BankingSystem.Test.UnitTests
             var emailServiceMock = new Mock<IEmailService>();
             var accountServicesMock = new Mock<IAccountService>();
             var contextMock = new Mock<IHttpContextAccessor>();
+            var getLoggedInUserMock = new Mock<GetLoggedinUser>(contextMock.Object);
 
-            var userService = new UserService(userRepositoryMock.Object, mapper, accountServicesMock.Object, userManagerMock.Object, signInManagerMock.Object, passwordHasherMock.Object, contextMock.Object);
+            var userService = new UserService(userRepositoryMock.Object, mapper, accountServicesMock.Object, userManagerMock.Object, signInManagerMock.Object, passwordHasherMock.Object, getLoggedInUserMock.Object);
 
             // Set up GetRolesAsync method
             userManagerMock.Setup(um => um.GetRolesAsync(It.IsAny<Users>())).ReturnsAsync(new List<string> { "AccountHolder", "TellerPerson" });

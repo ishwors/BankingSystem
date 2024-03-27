@@ -21,6 +21,8 @@ namespace BankingSystem.API.Entities
         [MaxLength(50)]
         public decimal Amount { get; set; }
 
+        public Guid ? LoggedInTeller {  get; set; }
+
         public DateTime TransactionTime { get; set; } = DateTime.UtcNow;
 
         [MaxLength(150)]
