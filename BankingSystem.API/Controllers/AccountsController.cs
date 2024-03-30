@@ -37,7 +37,7 @@ namespace BankingSystem.API.Controllers
         /// </summary>
         /// <returns>A list of <see cref="Accounts"/>.</returns>
         [HttpGet]
-        [CustomAuthorize("TellerPerson")]
+       // [CustomAuthorize("TellerPerson")]
         public async Task<ActionResult<IEnumerable<Accounts>>> GetAccounts()
         {
             var accounts = await accountServices.GetAccountsAsync();

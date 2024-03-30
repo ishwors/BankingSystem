@@ -23,7 +23,7 @@ namespace BankingSystem.API.Controllers
         /// </summary>
         /// <returns>A list of <see cref="Users"/>.</returns>
         [HttpGet]
-        [CustomAuthorize("TellerPerson")]
+       // [CustomAuthorize("TellerPerson")]
         public async Task<ActionResult<IEnumerable<Users>>> GetUsers()
         {
             var users = await userService.GetUsersAsync();
@@ -59,9 +59,9 @@ namespace BankingSystem.API.Controllers
         /// <param name="password">The user's password.</param>
         /// <returns>The logged in user.</returns>
         [HttpPost("login")]
-        public async Task<ActionResult<UserInfoDisplayDTO>> Login(string username, string password)
+        public async Task<ActionResult<UserInfoDisplayDTO>> Login([FromBody]UserLoginDTO userlogin)
         {
-            var user = await userService.Login(username, password);
+            var user = await userService.Login(userlogin.UserName, userlogin.Password);
             if (user == null)
             {
                 // return NotFound("Email or Password is incorrect.");
