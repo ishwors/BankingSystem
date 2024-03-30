@@ -60,7 +60,7 @@ builder.Services.AddScoped<IAccountService, AccountServices>();
 builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
 builder.Services.AddScoped<ITransactionService, TransactionServices>();
 
-builder.Services.AddScoped<IEmailService,EmailService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<GetLoggedinUser>();
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies()); //searches for all profiles automatically
@@ -99,30 +99,35 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
+// Configure CORS
+var corsOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>();
+
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowSpecificOrigin",
-        builder =>
+    options.AddDefaultPolicy(
+        policy =>
         {
-            builder.WithOrigins("http://127.0.0.1:5173")
-                   .AllowAnyHeader()
-                   .AllowAnyMethod();
+            policy.WithOrigins(corsOrigins)
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
         });
 });
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 // if (app.Environment.IsDevelopment())
 // {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+app.UseSwagger();
+app.UseSwaggerUI();
 // }
 
 //app.UseAuthentication();
 //app.UseAuthorization();
 
 app.MapControllers();
-app.UseCors("AllowSpecificOrigin");
+
+app.UseCors(); // Enable CORS
 
 // Seed data during application startup
 using (var scope = app.Services.CreateScope())
