@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Security.Claims;
 
 namespace BankingSystem.API.DTOs
 {
@@ -15,7 +16,7 @@ namespace BankingSystem.API.DTOs
         public DateTime DateOfBirth { get; set; }
         public DateTime? CreatedAt { get; set; }
         public DateTime? ModifiedAt { get; set; }
-
+        public string? token { get; set; }
         public UserInfoDisplayDTO()
         {
 

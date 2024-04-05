@@ -16,5 +16,6 @@ namespace BankingSystem.API.Services.IServices
         Task<UserInfoDisplayDTO> ResetUserPasswordAsync(string username, string password); 
         Task<UserInfoDisplayDTO> ChangePasswordAsync(Guid Id, string oldPassword, string newPassword);
         Task<UserInfoDisplayDTO> Login(string username, string password);
+        Task Logout();
     }
 }

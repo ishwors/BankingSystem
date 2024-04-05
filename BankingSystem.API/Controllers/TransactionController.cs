@@ -11,12 +11,13 @@ namespace BankingSystem.API.Controllers
     /// Controller for handling transactions
     /// </summary>
     [ApiController]
-    [Route("[controller]")]
+    [Route("/api/transactions")]
     [Produces("application/json")]
     public class TransactionController : ControllerBase
     {
         private readonly ITransactionService _transactionServices;
         private readonly UserManager<Users> _userManager;
+
 
         /// <summary>
         /// Constructor for TransactionController
@@ -37,16 +38,16 @@ namespace BankingSystem.API.Controllers
         /// <response code="200">Returns the transactions for the given account</response>
         /// <response code="404">If no transactions are found</response>
         [HttpGet]
-        [ProducesResponseType(typeof(IEnumerable<Transaction>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(IEnumerable<TransactionDisplayDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Route("{accountNumber}")]
         [RequireLoggedIn]
-        public async Task<ActionResult<IEnumerable<Transaction>>> GetTransactions(long accountNumber)
+        public async Task<ActionResult<IEnumerable<TransactionDisplayDTO>>> GetTransactions(long accountNumber)
         {
             var transactions = await _transactionServices.GetTransactionsOfAccountAsync(accountNumber);
             if (transactions == null)
             {
-                var list = new List<Transaction>();
+                var list = new List<TransactionDisplayDTO>();
                 return NotFound(list);
             }
             return Ok(transactions);
@@ -64,11 +65,9 @@ namespace BankingSystem.API.Controllers
         [ProducesResponseType(typeof(Transaction), StatusCodes.Status200OK)]
         [Route("deposit")]
         public async Task<ActionResult<Transaction>> DepositTransaction(DepositTransactionDTO transaction, long accountNumber)
-        {
-            // Get the user associated with the current HttpContext.User
-            var user = await _userManager.GetUserAsync(HttpContext.User);
-            var depositAccount = await _transactionServices.DepositTransactionAsync(transaction, accountNumber, user.Id);
-
+        {          
+            var depositAccount = await _transactionServices.DepositTransactionAsync(transaction, accountNumber);
+            
             return Ok(depositAccount);
         }
 

@@ -1,8 +1,10 @@
 ﻿using BankingSystem.API.DTOs;
 using BankingSystem.API.Entities;
 using BankingSystem.API.Services.IServices;
+using BankingSystem.API.Utilities;
 using BankingSystem.API.Utilities.CustomAuthorizations;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using System.ComponentModel.DataAnnotations;
 
 namespace BankingSystem.API.Controllers
@@ -13,19 +15,24 @@ namespace BankingSystem.API.Controllers
     /// </summary>
     [ApiController]
     [Route("api/kycdocument")]
-    [RequireLoggedIn]
+    //[RequireLoggedIn]
     public class KycDocumentController : ControllerBase
     {
         private readonly IKycService _kycService;
+        private readonly IFileUploadService _imageUploadService;
+        private readonly IConfiguration _configuration;
+        
 
         /// <summary>
         /// Initializes a new instance of the <see cref="KycDocumentController"/> class.
         /// </summary>
         /// <param name="kycService">The service that handles KYC Documents.</param>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="kycService"/> is null.</exception>
-        public KycDocumentController(IKycService kycService)
+        public KycDocumentController(IKycService kycService, IFileUploadService imageuploadservice)
         {
             _kycService = kycService ?? throw new ArgumentNullException(nameof(kycService));
+            
+            _imageUploadService = imageuploadservice;
         }
 
         /// <summary>
@@ -33,7 +40,7 @@ namespace BankingSystem.API.Controllers
         /// </summary>
         /// <returns>A collection of KYC Documents.</returns>
         [HttpGet]
-        [CustomAuthorize("TellerPerson")]
+       // [CustomAuthorize("TellerPerson")]
         public async Task<ActionResult<IEnumerable<KycDocument>>> GetKycDocument()
         {
             var KycDocument = await _kycService.GetKycDocumentAsync();
@@ -84,6 +91,15 @@ namespace BankingSystem.API.Controllers
                 return BadRequest("Update failed");
             }
             return Ok(updatedKycDocument);
+        }
+
+
+        [HttpGet("fileName")]
+
+        public async Task<string> GetImageByFileName(string fileName)
+        {
+            return await _imageUploadService.getfileurl(fileName);
+
         }
     }
 }

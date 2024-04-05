@@ -11,6 +11,8 @@ namespace BankingSystem.API.Utilities.Profiles
             CreateMap<Transaction, TransactionDTO>();
             CreateMap<TransactionDTO, Transaction>();
 
+            CreateMap<Transaction, TransactionDisplayDTO>();
+
             CreateMap<DepositTransactionDTO, Transaction>();
             CreateMap<WithdrawTransactionDTO, Transaction>();
         }

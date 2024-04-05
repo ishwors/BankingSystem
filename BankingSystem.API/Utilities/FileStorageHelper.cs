@@ -1,8 +1,11 @@
-﻿//using Firebase.Storage;
-using Amazon;
+﻿using Amazon;
 using Amazon.Runtime;
 using Amazon.S3;
 using Amazon.S3.Model;
+using Microsoft.Extensions.Configuration;
+using System;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace BankingSystem.API.Utilities
 {
@@ -19,23 +22,22 @@ namespace BankingSystem.API.Utilities
         {
             try
             {
-                // Specify S3 bucket name and file key
                 string bucketName = _configuration["AWS:BucketName"];
-                string fileKey = "uploads/" + fileName; // Construct a valid file key
+                string fileKey = "uploads/" + fileName;
 
-                var _awsCredental = new BasicAWSCredentials(_configuration["AWS:IAMAccessKey"], _configuration["AWS:IAMSecretKey"]);
-                var _s3Client = new AmazonS3Client(_awsCredental, RegionEndpoint.USEast1);
+                var awsCredentials = new BasicAWSCredentials(_configuration["AWS:IAMAccessKey"], _configuration["AWS:IAMSecretKey"]);
+                var s3Client = new AmazonS3Client(awsCredentials, RegionEndpoint.USEast1);
 
                 var bucketRequest = new PutObjectRequest
                 {
                     BucketName = bucketName,
                     Key = fileKey,
-                    InputStream = fileStream // Set the stream to be uploaded
+                    InputStream = fileStream
                 };
 
-                PutObjectResponse response = await _s3Client.PutObjectAsync(bucketRequest);
+                PutObjectResponse response = await s3Client.PutObjectAsync(bucketRequest);
 
-                return $"https://{bucketName}.s3.amazonaws.com/{fileKey}"; ;
+                return fileName;
             }
             catch (AmazonS3Exception e)
             {
@@ -49,5 +51,36 @@ namespace BankingSystem.API.Utilities
             }
         }
 
+        public async Task<string> GeneratePresignedUrlAsync(string fileName)
+        {
+            try
+            {
+                string bucketName = _configuration["AWS:BucketName"];
+                string fileKey = "uploads/" + fileName;
+
+                var awsCredentials = new BasicAWSCredentials(_configuration["AWS:IAMAccessKey"], _configuration["AWS:IAMSecretKey"]);
+                var s3Client = new AmazonS3Client(awsCredentials, RegionEndpoint.USEast1);
+
+                var request = new GetPreSignedUrlRequest
+                {
+                    BucketName = bucketName,
+                    Key = fileKey,
+                    Expires = DateTime.Now.AddMinutes(5) // Adjust expiration time as needed
+                };
+
+                string url = s3Client.GetPreSignedURL(request);
+                return url;
+            }
+            catch (AmazonS3Exception e)
+            {
+                Console.WriteLine("Error encountered on server. Message:'{0}' when generating presigned URL", e.Message);
+                return null;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Unknown encountered on server. Message:'{0}' when generating presigned URL", e.Message);
+                return null;
+            }
+        }
     }
 }

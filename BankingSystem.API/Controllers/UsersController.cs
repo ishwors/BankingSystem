@@ -4,6 +4,7 @@ using BankingSystem.API.Services.IServices;
 using BankingSystem.API.Utilities.CustomAuthorizations;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace BankingSystem.API.Controllers
 {
@@ -23,7 +24,7 @@ namespace BankingSystem.API.Controllers
         /// </summary>
         /// <returns>A list of <see cref="Users"/>.</returns>
         [HttpGet]
-       // [CustomAuthorize("TellerPerson")]
+        [CustomAuthorize("TellerPerson")]
         public async Task<ActionResult<IEnumerable<Users>>> GetUsers()
         {
             var users = await userService.GetUsersAsync();
@@ -59,7 +60,7 @@ namespace BankingSystem.API.Controllers
         /// <param name="password">The user's password.</param>
         /// <returns>The logged in user.</returns>
         [HttpPost("login")]
-        public async Task<ActionResult<UserInfoDisplayDTO>> Login([FromBody]UserLoginDTO userlogin)
+        public async Task<ActionResult<UserInfoDisplayDTO>> Login([FromBody] UserLoginDTO userlogin)
         {
             var user = await userService.Login(userlogin.UserName, userlogin.Password);
             if (user == null)
@@ -70,6 +71,26 @@ namespace BankingSystem.API.Controllers
             return Ok(user);
         }
 
+        [HttpPost("logout")]
+        public async Task<ActionResult> Logout()
+        {
+            try
+            {
+                await userService.Logout();
+
+                // Clear authentication cookies or tokens
+                //await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+                // Reset user identity
+                HttpContext.User = new ClaimsPrincipal(new ClaimsIdentity());
+                return Ok("Logged out successfully");
+            }
+            catch (Exception ex)
+            {
+                // Log any errors and return an error response
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Error occurred: {ex.Message}");
+            }
+        }
 
         /// <summary>
         /// Creates a new user using the given UserCreationDTO.

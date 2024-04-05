@@ -94,7 +94,7 @@ namespace BankingSystem.API.Data.Repository
 
             var isVerified = await IsVerifiedKycAsync(kycAccount.KYCId);
 
-            if (isVerified is true && isTeller)
+            if (isVerified is true )//&& isTeller)
             {
                 // Set the accountId for the transaction
                 transaction.AccountId = account.AccountId;

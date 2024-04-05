@@ -17,7 +17,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-//Register ApplicationDbContext
+// Register ApplicationDbContext
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
@@ -25,9 +25,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 builder.Services.AddControllers().AddNewtonsoftJson();
 
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-// Register the Swagger generator, defining 1 or more Swagger documents
+// Register the Swagger generator
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo
@@ -43,15 +42,13 @@ builder.Services.AddSwaggerGen(c =>
     c.IncludeXmlComments(xmlPath);
 });
 
-builder.Services.AddHttpContextAccessor();
-
-//registering the service
+// Registering the services
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
 
 builder.Services.AddScoped<IKycRepository, KycRepository>();
 builder.Services.AddScoped<IKycService, KycService>();
-
+builder.Services.AddScoped<IFileUploadService,FileUploadService>();
 builder.Services.AddScoped<FileStorageHelper>();
 
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
@@ -63,7 +60,14 @@ builder.Services.AddScoped<ITransactionService, TransactionServices>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<GetLoggedinUser>();
 
-builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies()); //searches for all profiles automatically
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
+builder.Services.AddLogging(loggingBuilder =>
+{
+    loggingBuilder.AddConsole();
+    // Add debug logging
+    loggingBuilder.AddDebug();
+});
 
 builder.Services.AddIdentity<Users, IdentityRole<Guid>>(options =>
 {
@@ -76,12 +80,6 @@ builder.Services.AddIdentity<Users, IdentityRole<Guid>>(options =>
 })
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
-
-builder.Services.AddLogging(loggingBuilder =>
-{
-    loggingBuilder.AddConsole(); // Configure logging to log to the console
-    // Add other logging providers as needed
-});
 
 // Configure JWT authentication
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -107,38 +105,41 @@ builder.Services.AddCors(options =>
     options.AddDefaultPolicy(
         policy =>
         {
-            policy.WithOrigins(corsOrigins)
-                  .AllowAnyHeader()
-                  .AllowAnyMethod();
+            builder.WithOrigins("http://localhost:5173")
+                   .AllowAnyHeader()
+                   .AllowAnyMethod()
+                   .AllowCredentials(); // Allow credentials (cookies)
         });
 });
+
+builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-// if (app.Environment.IsDevelopment())
-// {
-app.UseSwagger();
-app.UseSwaggerUI();
-// }
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
-//app.UseAuthentication();
-//app.UseAuthorization();
+app.UseCors("AllowSpecificOrigin");
+app.UseMiddleware<JwtMiddleware>();
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapControllers();
 
-app.UseCors(); // Enable CORS
-
-// Seed data during application startup
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     var dbContext = services.GetRequiredService<ApplicationDbContext>();
 
-    // Apply migrations (if needed)
+    // Apply migrations
     dbContext.Database.Migrate();
 
-    // Seed users and roles
+    // Seed data during application startup
     AppDBInitialize.SeedConstantsAsync(app).Wait();
 }
 
