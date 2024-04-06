@@ -30,7 +30,7 @@ namespace BankingSystem.API.Services
             _getLoggedinUser = getLoggedinUser;
         }
 
-        public async Task<IEnumerable<TransactionDisplayDTO>> GetTransactionsOfAccountAsync(long accountNumber)
+        /*public async Task<IEnumerable<TransactionDisplayDTO>> GetTransactionsOfAccountAsync(long accountNumber)
         {
             var transactions= await _transactionRepository.GetTransactionsOfAccountAsync(accountNumber);
             var transactionDTOs = new List<TransactionDisplayDTO>();
@@ -49,7 +49,52 @@ namespace BankingSystem.API.Services
                 transactionDTO.UserName = user.UserName;
             }
             return transactionDTOs;
+        }*/
+
+        public async Task<IEnumerable<TransactionDisplayDTO>> GetTransactionsOfAccountAsync(long accountNumber)
+        {
+            var transactions = await _transactionRepository.GetTransactionsOfAccountAsync(accountNumber);
+            var accountIds = transactions.Select(t => t.AccountId).Distinct().ToList();
+
+            // Get accounts with the corresponding accountIds
+            var accounts = await _accountService.GetAccountsAsync(accountIds);
+
+            // Extract distinct userIds from the accounts
+            var userIds = accounts.Select(a => a.UserId).Distinct().ToList();
+
+            // Retrieve user information for the extracted userIds
+            var users = await _userService.GetUsersAsync(userIds);
+
+            // Map transactions to DTOs and populate necessary fields
+            var transactionDTOs = transactions.Select(t =>
+            {
+                var transactionDTO = _mapper.Map<TransactionDisplayDTO>(t);
+
+                // Find the corresponding account for the transaction
+                var account = accounts.FirstOrDefault(a => a.AccountId == t.AccountId);
+
+                // If account is found, set UserName using the associated UserId
+                if (account != null)
+                {
+                    transactionDTO.AccountNumber = account.AccountNumber;
+                    var user = users.FirstOrDefault(u => u.Id == account.UserId);
+                    if (user != null)
+                    {
+                        transactionDTO.UserName = user.UserName;
+                    }
+                }
+
+                // Set TransactionType based on transaction type
+                transactionDTO.TransactionType = t.TransactionType == TransactionType.Deposit ?
+                    "Deposit" : TransactionType.Withdraw.GetDisplayName();
+
+                return transactionDTO;
+            }).ToList();
+
+            return transactionDTOs;
         }
+
+
 
         public void DeleteTransaction(Guid accountId, Guid transactionId)
         {
@@ -135,7 +180,7 @@ namespace BankingSystem.API.Services
             return withdrawnTransaction;
         }
 
-        public async Task<TransactionDisplayDTO> AddRoleForDisplay(Transaction transaction)
+        /*public async Task<TransactionDisplayDTO> AddRoleForDisplay(Transaction transaction)
         {
             var transactionType = "";
             var transactionDTO = _mapper.Map<TransactionDisplayDTO>(transaction);
@@ -149,6 +194,6 @@ namespace BankingSystem.API.Services
             }
             transactionDTO.TransactionType = transactionType;
             return transactionDTO;
-        }
+        }*/
     }
 }

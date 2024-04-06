@@ -4,6 +4,7 @@ using BankingSystem.API.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 namespace BankingSystem.API.Data.Repository
 {
@@ -31,6 +32,16 @@ namespace BankingSystem.API.Data.Repository
         public async Task<IEnumerable<Users>> GetUsersAsync()
         {
             return await _context.SystemUser.OrderBy(c => c.Fullname).ToListAsync();
+        }
+
+        public async Task<IEnumerable<Users>> GetUsersByIdsAsync(List<Guid> userIds)
+        {
+            // Assuming you have DbSet<User> named Users in your DbContext
+            var users = await _context.Users
+                .Where(u => userIds.Contains(u.Id))
+                .ToListAsync();
+
+            return users;
         }
 
         public async Task<Users> AddUsers(Users users)

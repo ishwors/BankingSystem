@@ -8,6 +8,7 @@ namespace BankingSystem.API.Data.Repository.IRepository
     {
         Task<IEnumerable<Users>> GetUsersAsync();
         Task<Users?> GetUserAsync(Guid Id);
+        Task<IEnumerable<Users>> GetUsersByIdsAsync(List<Guid> userIds);
         Task<Users?> GetUserByEmailAsync(string email);
         Task<Users> AddUsers(Users users);
         Task<Users> UpdateUsersAsync(Users users);

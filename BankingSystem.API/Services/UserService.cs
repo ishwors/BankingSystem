@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using BankingSystem.API.Data.Repository;
 using BankingSystem.API.Data.Repository.IRepository;
 using BankingSystem.API.DTOs;
 using BankingSystem.API.Entities;
@@ -61,6 +62,13 @@ namespace BankingSystem.API.Services
                 userDTOs.Add(userDTO);
             }
             return userDTOs;
+        }
+
+        public async Task<IEnumerable<Users>> GetUsersAsync(List<Guid> userIds)
+        {
+            // Assuming you have a method in your repository to retrieve users by IDs
+            var users = await UserRepository.GetUsersByIdsAsync(userIds);
+            return users;
         }
 
         public async Task<UserInfoDisplayDTO> RegisterUser(UserCreationDTO users)

@@ -9,6 +9,7 @@ namespace BankingSystem.API.Services.IServices
         Task<Users?> GetUserAsync(Guid Id);
         Task<Users?> GetUserByEmailAsync(string email);
         Task<IEnumerable<UserInfoDisplayDTO>> GetUsersAsync();
+        Task<IEnumerable<Users>> GetUsersAsync(List<Guid> userIds);
         Task<UserInfoDisplayDTO> RegisterUser(UserCreationDTO users);
         void DeleteUser(Guid Id);
         Task<UserInfoDisplayDTO> PatchUserDetails(Guid Id, JsonPatchDocument<UserCreationDTO> patchDocument);

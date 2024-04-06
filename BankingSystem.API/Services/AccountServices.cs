@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
+using BankingSystem.API.Data.Repository;
 using BankingSystem.API.Data.Repository.IRepository;
 using BankingSystem.API.DTOs;
 using BankingSystem.API.Entities;
 using BankingSystem.API.Services.IServices;
 using BankingSystem.API.Utilities.EmailTemplates;
+using System.Security.Principal;
 
 namespace BankingSystem.API.Services
 {
@@ -25,6 +27,14 @@ namespace BankingSystem.API.Services
         public async Task<Accounts?> GetAccountAsync(Guid accountId)
         {
             return await AccountRepository.GetAccountAsync(accountId);
+        }
+
+        public async Task<IEnumerable<Accounts>> GetAccountsAsync(List<Guid> accountIds)
+        {
+            // Assuming some repository or data access method is used to fetch accounts
+            // Replace this with your actual implementation to fetch accounts from the database or any other data source
+            var accounts = await AccountRepository.GetAccountsByIdsAsync(accountIds);
+            return accounts;
         }
 
         public async Task<IEnumerable<Accounts>> GetAccountsAsync()
