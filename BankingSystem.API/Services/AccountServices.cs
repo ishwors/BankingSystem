@@ -27,6 +27,14 @@ namespace BankingSystem.API.Services
             return await AccountRepository.GetAccountAsync(accountId);
         }
 
+        public async Task<IEnumerable<Accounts>> GetAccountsAsync(List<Guid> accountIds)
+        {
+            // Assuming some repository or data access method is used to fetch accounts
+            // Replace this with your actual implementation to fetch accounts from the database or any other data source
+            var accounts = await AccountRepository.GetAccountsByIdsAsync(accountIds);
+            return accounts;
+        }
+
         public async Task<IEnumerable<Accounts>> GetAccountsAsync()
         {
             return await AccountRepository.GetAccountsAsync();

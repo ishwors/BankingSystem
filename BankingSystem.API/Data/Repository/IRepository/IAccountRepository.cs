@@ -6,6 +6,7 @@ namespace BankingSystem.API.Data.Repository.IRepository
     {
         Task<IEnumerable<Accounts>> GetAccountsAsync();
         Task<Accounts?> GetAccountAsync(Guid accountId);
+        Task<IEnumerable<Accounts>> GetAccountsByIdsAsync(List<Guid> accountIds);
         Task<Accounts?> GetAccountByAccountNumberAsync(long accountNumber);
         Task<Accounts?> GetAccountByUserIdAsync(Guid userId);
         Task<Accounts> AddAccounts(Accounts accounts);

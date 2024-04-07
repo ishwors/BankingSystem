@@ -1,6 +1,7 @@
 ﻿using BankingSystem.API.Data.Repository.IRepository;
 using BankingSystem.API.Entities;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Principal;
 
 namespace BankingSystem.API.Data.Repository
 {
@@ -20,6 +21,16 @@ namespace BankingSystem.API.Data.Repository
         {
             //return await _context.Users.OrderBy(c => c.Name).ToListAsync();
             return await _context.Account.OrderBy(a => a.AccountNumber).ToListAsync();
+        }
+
+        public async Task<IEnumerable<Accounts>> GetAccountsByIdsAsync(List<Guid> accountIds)
+        {
+            // Assuming you have DbSet<Account> named Accounts in your DbContext
+            var accounts = await _context.Account
+                .Where(a => accountIds.Contains(a.AccountId))
+                .ToListAsync();
+
+            return accounts;
         }
 
         public async Task<Accounts?> GetAccountByAccountNumberAsync(long accountNumber)

@@ -63,6 +63,13 @@ namespace BankingSystem.API.Services
             return userDTOs;
         }
 
+        public async Task<IEnumerable<Users>> GetUsersAsync(List<Guid> userIds)
+        {
+            // Assuming you have a method in your repository to retrieve users by IDs
+            var users = await UserRepository.GetUsersByIdsAsync(userIds);
+            return users;
+        }
+
         public async Task<UserInfoDisplayDTO> RegisterUser(UserCreationDTO users)
         {
             var finalUser = _mapper.Map<Users>(users);

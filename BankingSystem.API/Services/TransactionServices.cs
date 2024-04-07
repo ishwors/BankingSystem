@@ -5,9 +5,7 @@ using BankingSystem.API.Entities;
 using BankingSystem.API.Services.IServices;
 using BankingSystem.API.Utilities;
 using BankingSystem.API.Utilities.EmailTemplates;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.OpenApi.Extensions;
-using System.Security.Principal;
 
 namespace BankingSystem.API.Services
 {
@@ -32,24 +30,47 @@ namespace BankingSystem.API.Services
 
         public async Task<IEnumerable<TransactionDisplayDTO>> GetTransactionsOfAccountAsync(long accountNumber)
         {
-            var transactions= await _transactionRepository.GetTransactionsOfAccountAsync(accountNumber);
-            var transactionDTOs = new List<TransactionDisplayDTO>();
-            foreach (var transaction in transactions)
+            var transactions = await _transactionRepository.GetTransactionsOfAccountAsync(accountNumber);
+            var accountIds = transactions.Select(t => t.AccountId).Distinct().ToList();
+
+            // Get accounts with the corresponding accountIds
+            var accounts = await _accountService.GetAccountsAsync(accountIds);
+
+            // Extract distinct userIds from the accounts
+            var userIds = accounts.Select(a => a.UserId).Distinct().ToList();
+
+            // Retrieve user information for the extracted userIds
+            var users = await _userService.GetUsersAsync(userIds);
+
+            // Map transactions to DTOs and populate necessary fields
+            var transactionDTOs = transactions.Select(t =>
             {
-                var transactionDTO = await AddRoleForDisplay(transaction);
-                transactionDTOs.Add(transactionDTO);
+                var transactionDTO = _mapper.Map<TransactionDisplayDTO>(t);
 
-                //get the account object from accountId
-                var account = await _accountService.GetAccountAsync(transaction.AccountId);
-                transactionDTO.AccountNumber = account.AccountNumber;
+                // Find the corresponding account for the transaction
+                var account = accounts.FirstOrDefault(a => a.AccountId == t.AccountId);
 
+                // If account is found, set UserName using the associated UserId
+                if (account != null)
+                {
+                    transactionDTO.AccountNumber = account.AccountNumber;
+                    var user = users.FirstOrDefault(u => u.Id == account.UserId);
+                    if (user != null)
+                    {
+                        transactionDTO.UserName = user.UserName;
+                    }
+                }
 
-                //get the user object from userId in account object
-                var user = await _userService.GetUserAsync(account.UserId);
-                transactionDTO.UserName = user.UserName;
-            }
+                // Set TransactionType based on transaction type
+                transactionDTO.TransactionType = t.TransactionType == TransactionType.Deposit ?
+                    "Deposit" : TransactionType.Withdraw.GetDisplayName();
+
+                return transactionDTO;
+            }).ToList();
+
             return transactionDTOs;
         }
+
 
         public void DeleteTransaction(Guid accountId, Guid transactionId)
         {
@@ -133,22 +154,6 @@ namespace BankingSystem.API.Services
 
             }
             return withdrawnTransaction;
-        }
-
-        public async Task<TransactionDisplayDTO> AddRoleForDisplay(Transaction transaction)
-        {
-            var transactionType = "";
-            var transactionDTO = _mapper.Map<TransactionDisplayDTO>(transaction);
-            if (transaction.TransactionType == TransactionType.Deposit)
-            {
-                transactionType = "Deposit";
-            }
-            else if (transaction.TransactionType == TransactionType.Withdraw)
-            {
-                transactionType = TransactionType.Withdraw.GetDisplayName();
-            }
-            transactionDTO.TransactionType = transactionType;
-            return transactionDTO;
         }
     }
 }
