@@ -5,9 +5,7 @@ using BankingSystem.API.Entities;
 using BankingSystem.API.Services.IServices;
 using BankingSystem.API.Utilities;
 using BankingSystem.API.Utilities.EmailTemplates;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.OpenApi.Extensions;
-using System.Security.Principal;
 
 namespace BankingSystem.API.Services
 {
@@ -29,27 +27,6 @@ namespace BankingSystem.API.Services
             _accountService = accountService ?? throw new ArgumentException(nameof(accountService));
             _getLoggedinUser = getLoggedinUser;
         }
-
-        /*public async Task<IEnumerable<TransactionDisplayDTO>> GetTransactionsOfAccountAsync(long accountNumber)
-        {
-            var transactions= await _transactionRepository.GetTransactionsOfAccountAsync(accountNumber);
-            var transactionDTOs = new List<TransactionDisplayDTO>();
-            foreach (var transaction in transactions)
-            {
-                var transactionDTO = await AddRoleForDisplay(transaction);
-                transactionDTOs.Add(transactionDTO);
-
-                //get the account object from accountId
-                var account = await _accountService.GetAccountAsync(transaction.AccountId);
-                transactionDTO.AccountNumber = account.AccountNumber;
-
-
-                //get the user object from userId in account object
-                var user = await _userService.GetUserAsync(account.UserId);
-                transactionDTO.UserName = user.UserName;
-            }
-            return transactionDTOs;
-        }*/
 
         public async Task<IEnumerable<TransactionDisplayDTO>> GetTransactionsOfAccountAsync(long accountNumber)
         {
@@ -93,7 +70,6 @@ namespace BankingSystem.API.Services
 
             return transactionDTOs;
         }
-
 
 
         public void DeleteTransaction(Guid accountId, Guid transactionId)
@@ -179,21 +155,5 @@ namespace BankingSystem.API.Services
             }
             return withdrawnTransaction;
         }
-
-        /*public async Task<TransactionDisplayDTO> AddRoleForDisplay(Transaction transaction)
-        {
-            var transactionType = "";
-            var transactionDTO = _mapper.Map<TransactionDisplayDTO>(transaction);
-            if (transaction.TransactionType == TransactionType.Deposit)
-            {
-                transactionType = "Deposit";
-            }
-            else if (transaction.TransactionType == TransactionType.Withdraw)
-            {
-                transactionType = TransactionType.Withdraw.GetDisplayName();
-            }
-            transactionDTO.TransactionType = transactionType;
-            return transactionDTO;
-        }*/
     }
 }

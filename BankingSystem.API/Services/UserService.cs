@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using BankingSystem.API.Data.Repository;
 using BankingSystem.API.Data.Repository.IRepository;
 using BankingSystem.API.DTOs;
 using BankingSystem.API.Entities;

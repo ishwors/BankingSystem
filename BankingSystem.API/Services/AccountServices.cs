@@ -1,11 +1,9 @@
 ﻿using AutoMapper;
-using BankingSystem.API.Data.Repository;
 using BankingSystem.API.Data.Repository.IRepository;
 using BankingSystem.API.DTOs;
 using BankingSystem.API.Entities;
 using BankingSystem.API.Services.IServices;
 using BankingSystem.API.Utilities.EmailTemplates;
-using System.Security.Principal;
 
 namespace BankingSystem.API.Services
 {
